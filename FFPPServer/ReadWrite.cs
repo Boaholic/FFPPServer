@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Json;
+using log4net;
 
 namespace FFPPServer
 {

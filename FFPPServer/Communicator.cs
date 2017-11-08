@@ -23,6 +23,7 @@ namespace FFPPServer
 
         private MessageQueue _queue;
         private AutoResetEvent _queueWaitHandle;
+        private messageReadWrite _readWrite;
 
         #endregion
 
@@ -161,29 +162,30 @@ namespace FFPPServer
         }
         
         //TODO
-        /*
+        //Need to determine how to set our endpoint
         public bool Send(ServerMessage msg, IPEndPoint targetEndPoint)
         {
             //TODO
             //msg.TargetEndPoint = targetEndPoint;
-            //return Send(msg);
+            return Send(msg);
         }
 
         //TODO
+        //change msg.targetEndPoint to our implementation of the end point
         public bool Send(ServerMessage msg)
         {
             Log.Debug("Entering Send");
 
             bool result = false;
 
-            if (CommunicationsEnabled && msg?.TargetEndPoint != null)
+            if (TargetEndPoint != null) //adjust this for end point
             {
                 try
                 {
                     Log.Debug($"Send {msg} to {msg.TargetEndPoint}");
-                    byte[] buffer = msg.Encode();
+                    byte[] buffer = _readWrite.EncodeMessage( msg );
                     Log.Debug($"Bytes sent: {FormatBytesForDisplay(buffer)}");
-                    int count = _udpClient.Send(buffer, buffer.Length, msg.TargetEndPoint);
+                    int count = _udpClient.Send(buffer, buffer.Length, TargetEndPoint); //??
                     result = (count == buffer.Length);
                     Log.Info($"Sent {msg} to {msg.TargetEndPoint}, result={result}");
                 }
@@ -195,7 +197,7 @@ namespace FFPPServer
 
             Log.Debug("Leaving Send, result = " + result);
             return result;
-        }*/
+        }
 
         public void Close()
         {
