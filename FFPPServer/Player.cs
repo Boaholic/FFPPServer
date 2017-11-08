@@ -59,7 +59,7 @@ namespace FFPPServer
                 playerHasRequestedLeave = value;
             }
         }
-        // public serverMessage SendIsReady()
+        // public ServerMessage SendIsReady()
         //{
         //create an isReady message
         //send an isReady message
