@@ -11,7 +11,7 @@ namespace FFPPServer
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(
                 typeof(LobbyGame)
             );
-        public ClientPlayer[] associatedPlayers;
+        public Player[] associatedPlayers;
         public bool isActive;
         public bool isOpen;
         public LobbyGame()
@@ -20,9 +20,9 @@ namespace FFPPServer
             isActive = false;
             isOpen = true;
         }
-        public void playerJoinGame(ClientPlayer newPlayer)
+        public void playerJoinGame(Player newPlayer)
         {
-            foreach (ClientPlayer p in associatedPlayers)
+            foreach (Player p in associatedPlayers)
             {
                 if (newPlayer == p)
                 {
