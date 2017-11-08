@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace FFPPServer
 {
-    public class lobbyServer
+    public class LobbyServer
     {
-        public clientPlayer[] totalAssociatedPlayers;
-        public lobbyGame[] gamesInLobby;
-        public void newLobbyPlayer(clientPlayer newPlayer)
+        public ClientPlayer[] totalAssociatedPlayers;
+        public LobbyGame[] gamesInLobby;
+        public void newLobbyPlayer(ClientPlayer newPlayer)
         {
-            foreach (clientPlayer p in totalAssociatedPlayers)
+            foreach (ClientPlayer p in totalAssociatedPlayers)
             {
                 if (newPlayer == p)
                 {
@@ -22,12 +22,12 @@ namespace FFPPServer
             totalAssociatedPlayers.SetValue(newPlayer, totalAssociatedPlayers.GetUpperBound(1) + 1);
         }
 
-        public lobbyServer()
+        public LobbyServer()
         {
             totalAssociatedPlayers = null;
             //Create two new instances of lobbygame
-            lobbyGame firstGame = new lobbyGame();
-            lobbyGame secondGame = new lobbyGame();
+            LobbyGame firstGame = new LobbyGame();
+            LobbyGame secondGame = new LobbyGame();
             gamesInLobby.SetValue(firstGame, gamesInLobby.GetUpperBound(1) + 1);
             gamesInLobby.SetValue(secondGame, gamesInLobby.GetUpperBound(1) + 1);
         }
