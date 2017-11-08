@@ -21,9 +21,9 @@ namespace FFPPServer
         private IPEndPoint _localEndPoint;
         private UdpClient _udpClient;
 
-        private MessageQueue _queue;
+        private MessageQueue _queue = new MessageQueue();
         private AutoResetEvent _queueWaitHandle;
-        private ReadWrite _readWrite;
+        private ReadWrite _readWrite = new ReadWrite();
         
         #endregion
 
@@ -160,34 +160,29 @@ namespace FFPPServer
             Log.Debug("Leaving Receive");
             return result;
         }
-        
-        //TODO
-        /*
-        public bool Send(ServerMessage msg, IPEndPoint targetEndPoint)
-        {
-            //TODO
-            //msg.TargetEndPoint = targetEndPoint;
-            return Send(msg);
-        }*/
 
-        //TODO
-        //change msg.targetEndPoint to our implementation of the end point
-        /*public bool Send(ServerMessage msg)
+        public bool Send(Message msg, IPEndPoint targetEndPoint)
+        {
+            msg.fromAddress = targetEndPoint;
+            return Send(msg);
+        }
+
+        public bool Send(Message msg)
         {
             Log.Debug("Entering Send");
 
             bool result = false;
 
-            if (TargetEndPoint != null) //adjust this for end point
+            if (msg.fromAddress != null) //adjust this for end point
             {
                 try
                 {
-                    Log.Debug($"Send {msg} to {msg.TargetEndPoint}");
+                    Log.Debug($"Send {msg} to {msg.fromAddress}");
                     byte[] buffer = _readWrite.EncodeMessage( msg );
                     Log.Debug($"Bytes sent: {FormatBytesForDisplay(buffer)}");
-                    int count = _udpClient.Send(buffer, buffer.Length, TargetEndPoint); //??
+                    int count = _udpClient.Send(buffer, buffer.Length, msg.fromAddress); //??
                     result = (count == buffer.Length);
-                    Log.Info($"Sent {msg} to {msg.TargetEndPoint}, result={result}");
+                    Log.Info($"Sent {msg.messageBody} of type '{msg.thisMessageType}' to {msg.fromAddress.Address}, result={result}");
                 }
                 catch (Exception err)
                 {
@@ -197,7 +192,7 @@ namespace FFPPServer
 
             Log.Debug("Leaving Send, result = " + result);
             return result;
-        }*/
+        }
 
         public void Close()
         {
