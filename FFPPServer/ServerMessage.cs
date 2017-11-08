@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Json;
 
 namespace FFPPServer
 {
-    [DataContract(Name = "serverMessage", Namespace = "serverMessage")]
+    [DataContract(Name = "ServerMessage", Namespace = "ServerMessage")]
     public class ServerMessage : IExtensibleDataObject
     {
         //https://www.codeproject.com/Articles/140911/log-net-Tutorial

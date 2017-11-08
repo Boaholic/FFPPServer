@@ -162,17 +162,17 @@ namespace FFPPServer
         }
         
         //TODO
-        //Need to determine how to set our endpoint
+        /*
         public bool Send(ServerMessage msg, IPEndPoint targetEndPoint)
         {
             //TODO
             //msg.TargetEndPoint = targetEndPoint;
             return Send(msg);
-        }
+        }*/
 
         //TODO
         //change msg.targetEndPoint to our implementation of the end point
-        public bool Send(ServerMessage msg)
+        /*public bool Send(ServerMessage msg)
         {
             Log.Debug("Entering Send");
 
@@ -197,7 +197,7 @@ namespace FFPPServer
 
             Log.Debug("Leaving Send, result = " + result);
             return result;
-        }
+        }*/
 
         public void Close()
         {
