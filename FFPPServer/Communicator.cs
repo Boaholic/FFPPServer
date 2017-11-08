@@ -23,7 +23,7 @@ namespace FFPPServer
 
         private MessageQueue _queue;
         private AutoResetEvent _queueWaitHandle;
-        private messageReadWrite _readWrite;
+        private ReadWrite _readWrite;
 
         #endregion
 
