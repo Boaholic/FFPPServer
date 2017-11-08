@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Json;
-
+using System.Net;
 namespace FFPPServer
 {
     [DataContract(Name = "serverMessage", Namespace = "serverMessage")]
@@ -24,7 +24,8 @@ namespace FFPPServer
         public messageType thisMessageType;
         [DataMember(Name = "messageBody")]
         public String messageBody;
-
+        [DataMember(Name = "fromAddress")]
+        public IPEndPoint fromAddress;
         public Message(messageType inputMsgType, String inputMessageBody)
         {
             thisMessageType = inputMsgType;

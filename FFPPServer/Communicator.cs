@@ -24,7 +24,7 @@ namespace FFPPServer
         private MessageQueue _queue;
         private AutoResetEvent _queueWaitHandle;
         private ReadWrite _readWrite;
-
+        
         #endregion
 
         #region Constructors and Destructors
@@ -135,12 +135,12 @@ namespace FFPPServer
                     var ep = new IPEndPoint(IPAddress.Any, 0);
                     byte[] receiveBytes = _udpClient?.Receive(ref ep);
                     Log.Debug($"Bytes received: {FormatBytesForDisplay(receiveBytes)}");
-                    //result = ServerMessage.Create(receiveBytes);
+                    _readWrite.DecodeMessage(receiveBytes);
+                    result = _readWrite.targetMessage;
                     if (result != null)
                     {
-                        //TODO
-                        //result.SenderEndPoint = ep;
-                        Log.InfoFormat($"Received {result} from {ep}");
+                        Log.InfoFormat($"Received type: /n/t'{result.thisMessageType}' " +
+                            $"/n/t content: '{result.messageBody}' /n/t from: {result.fromAddress.Address}");
                     }
                     else
                     {
