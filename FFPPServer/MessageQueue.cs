@@ -26,21 +26,21 @@ namespace FFPPServer
 
         #region Public Methods
 
-        public ServerMessage Dequeue()
+        public Message Dequeue()
         {
             Log.Debug("Entering MessageQueue.Dequeue");
-            ServerMessage result = null;
+            Message result = null;
             if (_queue.Count > 0)
             {
                 Object obj = _queue.Dequeue();
                 if (obj != null)
-                    result = obj as ServerMessage;
+                    result = obj as Message;
             }
             Log.Debug("Leaving MessageQueue.Dequeue");
             return result;
         }
 
-        public void Enqueue(ServerMessage r)
+        public void Enqueue(Message r)
         {
             Log.Debug("Entering MessageQueue.Enqueue");
             _queue.Enqueue(r);
