@@ -47,11 +47,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clientPlayer.cs" />
-    <Compile Include="lobbyServer.cs" />
-    <Compile Include="messageReadWrite.cs" />
+    <Compile Include="Communicator.cs" />
+    <Compile Include="LobbyGame.cs" />
+    <Compile Include="LobbyServer.cs" />
+    <Compile Include="MessageQueue.cs" />
+    <Compile Include="MessageReadWrite.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="serverMessage.cs" />
+    <Compile Include="ServerMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
