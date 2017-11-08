@@ -6,11 +6,11 @@ using System.Runtime.Serialization.Json;
 namespace FFPPServer
 {
     [DataContract(Name = "serverMessage", Namespace = "serverMessage")]
-    public class ServerMessage : IExtensibleDataObject
+    public class Message : IExtensibleDataObject
     {
         //https://www.codeproject.com/Articles/140911/log-net-Tutorial
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(
-                typeof(ServerMessage)
+                typeof(Message)
             );
         public enum messageType
         {
@@ -24,7 +24,7 @@ namespace FFPPServer
         [DataMember(Name = "messageBody")]
         public String messageBody;
 
-        public ServerMessage(messageType inputMsgType, String inputMessageBody)
+        public Message(messageType inputMsgType, String inputMessageBody)
         {
             thisMessageType = inputMsgType;
             messageBody = inputMessageBody;

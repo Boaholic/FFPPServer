@@ -81,7 +81,7 @@ namespace FFPPServer
 
         public IPEndPoint LocalEndPoint => _localEndPoint;
 
-        public void Enqueue(ServerMessage m)
+        public void Enqueue(Message m)
         {
             if (m != null)
             {
@@ -101,9 +101,9 @@ namespace FFPPServer
             return result;
         }
 
-        public ServerMessage Dequeue()
+        public Message Dequeue()
         {
-            ServerMessage result = null;
+            Message result = null;
 
             if (_queue.Count > 0)
                 result = _queue.Dequeue();
@@ -113,11 +113,11 @@ namespace FFPPServer
             return result;
         }
 
-        public ServerMessage Receive(int timeout)
+        public Message Receive(int timeout)
         {
             Log.Debug("Entering Receive");
 
-            ServerMessage result = null;
+            Message result = null;
             try
             {
                 // Wait for some data to become available
