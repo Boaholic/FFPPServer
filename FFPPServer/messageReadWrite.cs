@@ -2,21 +2,22 @@
 using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Json;
+using log4net;
 
 namespace FFPPServer
 {
-    public class messageReadWrite
+    public class MessageReadWrite
     {
         //https://www.codeproject.com/Articles/140911/log-net-Tutorial
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(serverMessage));
-        serverMessage targetMessage { get; set; }
+        ServerMessage targetMessage { get; set; }
         public void DecodeMessage(byte[] encodedMessage)
         {
             MemoryStream rawData = new MemoryStream(encodedMessage);
             log.Info("Received Byte Stream: " + rawData.ToString());
             BinaryReader readingStream = new BinaryReader(rawData);
             DataContractJsonSerializer messageReader = new DataContractJsonSerializer(typeof(serverMessage));
-            targetMessage = (serverMessage)messageReader.ReadObject(rawData);
+            targetMessage = (ServerMessage)messageReader.ReadObject(rawData);
             log.Info("Extracted JSON: " + targetMessage.ToString());
         }
 
@@ -30,7 +31,7 @@ namespace FFPPServer
             return writingStream.GetBuffer();
         }
 
-        public byte[] EncodeMessage(serverMessage inputMessage)
+        public byte[] EncodeMessage(ServerMessage inputMessage)
         {
             targetMessage = inputMessage;
             log.Info("Message before encoding: " + targetMessage.ToString());
