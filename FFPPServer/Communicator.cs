@@ -21,10 +21,10 @@ namespace FFPPServer
         private IPEndPoint _localEndPoint;
         private UdpClient _udpClient;
 
-        private MessageQueue _queue;
+        private MessageQueue _queue = new MessageQueue();
         private AutoResetEvent _queueWaitHandle;
-        private messageReadWrite _readWrite;
-
+        private ReadWrite _readWrite = new ReadWrite();
+        
         #endregion
 
         #region Constructors and Destructors
@@ -82,7 +82,7 @@ namespace FFPPServer
 
         public IPEndPoint LocalEndPoint => _localEndPoint;
 
-        public void Enqueue(ServerMessage m)
+        public void Enqueue(Message m)
         {
             if (m != null)
             {
@@ -102,9 +102,9 @@ namespace FFPPServer
             return result;
         }
 
-        public ServerMessage Dequeue()
+        public Message Dequeue()
         {
-            ServerMessage result = null;
+            Message result = null;
 
             if (_queue.Count > 0)
                 result = _queue.Dequeue();
@@ -114,11 +114,11 @@ namespace FFPPServer
             return result;
         }
 
-        public ServerMessage Receive(int timeout)
+        public Message Receive(int timeout)
         {
             Log.Debug("Entering Receive");
 
-            ServerMessage result = null;
+            Message result = null;
             try
             {
                 // Wait for some data to become available
@@ -135,12 +135,12 @@ namespace FFPPServer
                     var ep = new IPEndPoint(IPAddress.Any, 0);
                     byte[] receiveBytes = _udpClient?.Receive(ref ep);
                     Log.Debug($"Bytes received: {FormatBytesForDisplay(receiveBytes)}");
-                    //result = ServerMessage.Create(receiveBytes);
+                    _readWrite.DecodeMessage(receiveBytes);
+                    result = _readWrite.targetMessage;
                     if (result != null)
                     {
-                        //TODO
-                        //result.SenderEndPoint = ep;
-                        Log.InfoFormat($"Received {result} from {ep}");
+                        Log.InfoFormat($"Received type: /n/t'{result.thisMessageType}' " +
+                            $"/n/t content: '{result.messageBody}' /n/t from: {result.fromAddress.Address}");
                     }
                     else
                     {
@@ -160,34 +160,29 @@ namespace FFPPServer
             Log.Debug("Leaving Receive");
             return result;
         }
-        
-        //TODO
-        //Need to determine how to set our endpoint
-        public bool Send(ServerMessage msg, IPEndPoint targetEndPoint)
+
+        public bool Send(Message msg, IPEndPoint targetEndPoint)
         {
-            //TODO
-            //msg.TargetEndPoint = targetEndPoint;
+            msg.fromAddress = targetEndPoint;
             return Send(msg);
         }
 
-        //TODO
-        //change msg.targetEndPoint to our implementation of the end point
-        public bool Send(ServerMessage msg)
+        public bool Send(Message msg)
         {
             Log.Debug("Entering Send");
 
             bool result = false;
 
-            if (TargetEndPoint != null) //adjust this for end point
+            if (msg.fromAddress != null) //adjust this for end point
             {
                 try
                 {
-                    Log.Debug($"Send {msg} to {msg.TargetEndPoint}");
+                    Log.Debug($"Send {msg} to {msg.fromAddress}");
                     byte[] buffer = _readWrite.EncodeMessage( msg );
                     Log.Debug($"Bytes sent: {FormatBytesForDisplay(buffer)}");
-                    int count = _udpClient.Send(buffer, buffer.Length, TargetEndPoint); //??
+                    int count = _udpClient.Send(buffer, buffer.Length, msg.fromAddress); //??
                     result = (count == buffer.Length);
-                    Log.Info($"Sent {msg} to {msg.TargetEndPoint}, result={result}");
+                    Log.Info($"Sent {msg.messageBody} of type '{msg.thisMessageType}' to {msg.fromAddress.Address}, result={result}");
                 }
                 catch (Exception err)
                 {

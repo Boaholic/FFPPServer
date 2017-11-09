@@ -4,10 +4,10 @@ using System.Net.Sockets;
 
 namespace FFPPServer
 {
-    public class ClientPlayer
+    public class Player
     {
         public string playerName { get; set; }
-        public static readonly ILog Logger = LogManager.GetLogger(typeof(ServerMessage));
+        public static readonly ILog Logger = LogManager.GetLogger(typeof(Message));
         public string A_Number { get; set; }
         public IPAddress _ServerAddress { get; set; }
         public UdpClient MyUdpClient { get; set; }
@@ -20,7 +20,7 @@ namespace FFPPServer
 
         public int Score { get; set; }
 
-        public ClientPlayer(ServerMessage initialClientMessage)
+        public Player(Message initialClientMessage)
         {
             //extract the player name
             //set the value of variable playerName
@@ -59,7 +59,7 @@ namespace FFPPServer
                 playerHasRequestedLeave = value;
             }
         }
-        // public serverMessage SendIsReady()
+        // public ServerMessage SendIsReady()
         //{
         //create an isReady message
         //send an isReady message
