@@ -173,7 +173,7 @@ namespace FFPPServer
 
             bool result = false;
 
-            if (msg.fromAddress != null) //adjust this for end point
+            if (msg.fromAddress != null) 
             {
                 try
                 {
