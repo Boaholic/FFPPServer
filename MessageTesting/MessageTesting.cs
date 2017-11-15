@@ -11,7 +11,7 @@ namespace TestMessageCoding
         public void TestingEncodingDecoding()
         {
             ReadWrite _messageReadWrite = new ReadWrite();
-            Message TestMessage = new Message(Message.messageType.JOIN, "PlayerName");
+            Message TestMessage = new Message(MessageType.JOIN, "PlayerName");
             byte[] EncodedMessage = _messageReadWrite.EncodeMessage(TestMessage);
             _messageReadWrite.DecodeMessage(EncodedMessage);
 
