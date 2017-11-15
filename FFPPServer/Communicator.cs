@@ -77,6 +77,8 @@ namespace FFPPServer
 
             _sender = new Thread(new ThreadStart(Send));
             _sender.Start();
+
+            Listen(1000);
         }
 
         #endregion
