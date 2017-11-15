@@ -18,12 +18,17 @@ namespace FFPPServer
         private static readonly ILog Log = LogManager.GetLogger(typeof(Communicator));
 
         private int _localPort;
-        private IPEndPoint _localEndPoint;
-        private UdpClient _udpClient;
+        private static IPEndPoint _localEndPoint;
+        private static UdpClient _udpClient;
 
-        private MessageQueue _queue = new MessageQueue();
-        private AutoResetEvent _queueWaitHandle;
+        private static MessageQueue _incomingQueue = new MessageQueue();
+        private static MessageQueue _outgoingQueue = new MessageQueue();
         private ReadWrite _readWrite = new ReadWrite();
+        private DataProcessor _processor = new DataProcessor();
+
+
+        private Thread _dataProcessor;
+        private Thread _sender;
         
         #endregion
 
@@ -61,18 +66,26 @@ namespace FFPPServer
                 _localPort = _localEndPoint.Port;
                 Log.Info("Created Communicator's UdpClient, bound to " + _localEndPoint);
 
-               // _queue = new MessageQueue();
-                _queueWaitHandle = new AutoResetEvent(false);
 
                 Log.Debug("Done initializing communicator");
             }
+            _processor._incomingMessages = _incomingQueue;
+            _processor._outgoingMessages = _outgoingQueue;
+
+            _dataProcessor = new Thread(new ThreadStart(_processor.Process));
+            _dataProcessor.Start();
+
+            _sender = new Thread(new ThreadStart(Send));
+            _sender.Start();
+
+            Listen(1000);
         }
 
         #endregion
 
         #region Public Properties and Methods
 
-        public bool CommunicationsEnabled => _udpClient != null;
+        public bool keepSending => _udpClient != null;
 
         public Int32 LocalPort
         {
@@ -81,72 +94,37 @@ namespace FFPPServer
         }
 
         public IPEndPoint LocalEndPoint => _localEndPoint;
-
-        public void Enqueue(Message m)
+        public void Enqueue(MessageQueue queue, Message m)
         {
             if (m != null)
             {
                 Log.Debug("Enqueue message = " + m);
-                _queue.Enqueue(m);
-                _queueWaitHandle.Set();
+                queue.Enqueue(m);
             }
         }
 
-        public bool MessageAvailable(int timeout)
-        {
-            bool result = false;
-            if (_queue.Count > 0)
-                result = true;
-            else if (timeout > 0)
-                result = _queueWaitHandle.WaitOne(timeout, true);
-            return result;
-        }
-
-        public Message Dequeue()
+        public Message Dequeue(MessageQueue queue)
         {
             Message result = null;
 
-            if (_queue.Count > 0)
-                result = _queue.Dequeue();
+            if (queue.Count > 0)
+                result = queue.Dequeue();
 
             if (result != null)
                 Log.Debug("Dequeue message = " + result);
             return result;
         }
 
-        public Message Receive(int timeout)
+        public void Listen(int timeout)
         {
-            Log.Debug("Entering Receive");
+            Log.Debug("Listening for messages");
 
-            Message result = null;
             try
             {
-                // Wait for some data to become available
-                while (CommunicationsEnabled && _udpClient?.Available <= 0 && timeout > 0)
-                {
-                    Thread.Sleep(10);
-                    timeout -= 10;
-                }
+                // Asyncronously listen for new messages
+      
+                    _udpClient.BeginReceive(new AsyncCallback(Receive), null);
 
-                // If there is data receive and communications are enabled, then read that data
-                if (CommunicationsEnabled && _udpClient?.Available > 0)
-                {
-                    Log.InfoFormat(@"Packet available");
-                    var ep = new IPEndPoint(IPAddress.Any, 0);
-                    byte[] receiveBytes = _udpClient?.Receive(ref ep);
-                    Log.Debug($"Bytes received: {FormatBytesForDisplay(receiveBytes)}");
-                    _readWrite.DecodeMessage(receiveBytes);
-                    result = _readWrite.targetMessage;
-                    if (result != null)
-                    {
-                        Log.InfoFormat($"Received type: /n/t'{result.thisMessageType}' " +
-                            $"/n/t content: '{result.messageBody}' /n/t from: {result.fromAddress.Address}");
-                    }
-                    else
-                    {
-                        Log.Warn(@"Data received, but could not be decoded");
-                    }
-                }
             }
             catch (SocketException err)
             {
@@ -157,41 +135,71 @@ namespace FFPPServer
             {
                 Log.ErrorFormat($"Unexpected expection while receiving datagram: {err} ");
             }
-            Log.Debug("Leaving Receive");
-            return result;
+            Log.Debug("Leaving Listening");
         }
 
-        public bool Send(Message msg, IPEndPoint targetEndPoint)
+        // recieved async message
+        public void Receive(IAsyncResult res)
+        {
+            Log.InfoFormat(@"Packet available");
+            IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 8000);
+            byte[] received = _udpClient.EndReceive(res, ref RemoteIpEndPoint);
+            Log.Debug($"Bytes received: {FormatBytesForDisplay(received)}");
+
+            _udpClient.BeginReceive(new AsyncCallback(Receive), null);
+            Process(received);
+
+        }
+
+        //process recieved message
+        public void Process(byte[] receivedBytes)
+        {
+            _readWrite.DecodeMessage(receivedBytes);
+            Enqueue(_incomingQueue, _readWrite.targetMessage);
+        }
+
+        /*public bool Send(Message msg, IPEndPoint targetEndPoint)
         {
             msg.fromAddress = targetEndPoint;
             return Send(msg);
-        }
+        }*/
 
-        public bool Send(Message msg)
+        public void Send()
         {
-            Log.Debug("Entering Send");
-
-            bool result = false;
-
-            if (msg.fromAddress != null) 
+            while(keepSending)
             {
-                try
+                Message _msg = Dequeue(_outgoingQueue);
+                if(_msg != null )
                 {
-                    Log.Debug($"Send {msg} to {msg.fromAddress}");
-                    byte[] buffer = _readWrite.EncodeMessage( msg );
-                    Log.Debug($"Bytes sent: {FormatBytesForDisplay(buffer)}");
-                    int count = _udpClient.Send(buffer, buffer.Length, msg.fromAddress); //??
-                    result = (count == buffer.Length);
-                    Log.Info($"Sent {msg.messageBody} of type '{msg.thisMessageType}' to {msg.fromAddress.Address}, result={result}");
-                }
-                catch (Exception err)
-                {
-                    Log.Error("Unexpected exception while sending datagram - ", err);
-                }
-            }
+                    Log.Debug("Entering Send");
 
-            Log.Debug("Leaving Send, result = " + result);
-            return result;
+                    bool result = false;
+
+                    if (_msg.fromAddress != null) //adjust this for end point
+                    {
+                        try
+                        {
+                            Log.Debug($"Send {_msg} to {_msg.fromAddress}");
+                            byte[] buffer = _readWrite.EncodeMessage(_msg);
+                            Log.Debug($"Bytes sent: {FormatBytesForDisplay(buffer)}");
+                            int count = _udpClient.Send(buffer, buffer.Length, _msg.fromAddress); //??
+                            result = (count == buffer.Length);
+                            Log.Info($"Sent {_msg.messageBody} of type '{_msg.thisMessageType}' to {_msg.fromAddress.Address}, result={result}");
+                        }
+                        catch (Exception err)
+                        {
+                            Log.Error("Unexpected exception while sending datagram - ", err);
+                        }
+                    }
+
+                    Log.Debug("Leaving Send, result = " + result);
+                } else
+                {
+                    Thread.Sleep(10);
+                }
+  
+            }
+   
         }
 
         public void Close()
