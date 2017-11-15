@@ -187,6 +187,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataProcessor.cs" />
+    <Compile Include="MessageType.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Communicator.cs" />
     <Compile Include="LobbyGame.cs" />

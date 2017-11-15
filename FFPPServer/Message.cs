@@ -13,20 +13,14 @@ namespace FFPPServer
                 typeof(Message)
 
             );
-        public enum messageType
-        {
-            JOIN,
-            ACK,
-            HB,
-            CHAT
-        }
+  
         [DataMember(Name = "thisMessageType")]
-        public messageType thisMessageType;
+        public MessageType thisMessageType;
         [DataMember(Name = "messageBody")]
         public String messageBody;
         [DataMember(Name = "fromAddress")]
         public IPEndPoint fromAddress;
-        public Message(messageType inputMsgType, String inputMessageBody)
+        public Message(MessageType inputMsgType, String inputMessageBody)
         {
             thisMessageType = inputMsgType;
             messageBody = inputMessageBody;
