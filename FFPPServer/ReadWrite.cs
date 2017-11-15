@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using log4net;
+using System.Text;
 
 namespace FFPPServer
 {
@@ -28,7 +29,12 @@ namespace FFPPServer
             log.Info("Message before encoding: " + targetMessage.ToString());
             messageWriter.WriteObject(writingStream, targetMessage);
             log.Info("Message after encoding: " + writingStream.GetBuffer());
-            return writingStream.GetBuffer();
+            //http://www.advancesharp.com/blog/1086/convert-object-to-json-and-json-to-object-in-c
+            //https://connect.microsoft.com/VisualStudio/feedback/details/356750/datacontractjsonserializer-fails-with-non-ansi-characters
+            string messageJSON = Encoding.UTF8.GetString(writingStream.ToArray());
+            log.Info("Message after encoding: " + messageJSON);
+            return Encoding.UTF8.GetBytes(messageJSON);
+
         }
 
         public byte[] EncodeMessage(Message inputMessage)
@@ -39,7 +45,9 @@ namespace FFPPServer
             MemoryStream writingStream = new MemoryStream();
             messageWriter.WriteObject(writingStream, inputMessage);
             log.Info("Message after encoding: " + writingStream.GetBuffer());
-            return writingStream.GetBuffer();
+            string messageJSON = Encoding.UTF8.GetString(writingStream.ToArray());
+            log.Info("Message after encoding: " + messageJSON);
+            return Encoding.UTF8.GetBytes(messageJSON);
         }
     }
 }
