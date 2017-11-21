@@ -8,8 +8,8 @@ namespace FFPPServer
 {
     public class LobbyServer
     {
-        public Player[] totalAssociatedPlayers;
-        public LobbyGame[] gamesInLobby;
+        public Player[] totalAssociatedPlayers = new Player[2];
+        public LobbyGame[] gamesInLobby = new LobbyGame[2];
         public void newLobbyPlayer(Player newPlayer)
         {
             foreach (Player p in totalAssociatedPlayers)
@@ -28,8 +28,9 @@ namespace FFPPServer
             //Create two new instances of lobbygame
             LobbyGame firstGame = new LobbyGame();
             LobbyGame secondGame = new LobbyGame();
-            gamesInLobby.SetValue(firstGame, gamesInLobby.GetUpperBound(1) + 1);
-            gamesInLobby.SetValue(secondGame, gamesInLobby.GetUpperBound(1) + 1);
+            gamesInLobby.SetValue(firstGame, 0);
+            gamesInLobby.SetValue(secondGame, 1);
+            
         }
     }
 }

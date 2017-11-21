@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using log4net;
 using log4net.Config;
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]
 
 namespace FFPPServer
 {
@@ -13,8 +14,11 @@ namespace FFPPServer
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
         static void Main(string[] args)
         {
-            XmlConfigurator.Configure(new System.IO.FileInfo(args[0]));   
+            XmlConfigurator.Configure(new System.IO.FileInfo("./App.config"));   
+            //BasicConfigurator.Configure();
             LobbyServer mainLobby = new LobbyServer();
+            log.Info("Server Started!");
+            Console.ReadLine();
         }
     }
 }
