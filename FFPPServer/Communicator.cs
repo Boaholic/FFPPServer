@@ -14,43 +14,45 @@ namespace FFPPServer
     /// </summary>
     public class Communicator
     {
+
         #region Private and Protected Data Members
+        private static Communicator _instance;
+        private static readonly object MyLock = new object();
+
         private static readonly ILog Log = LogManager.GetLogger(typeof(Communicator));
 
-        private int _localPort;
+        public int _localPort { get; set; }
         private static IPEndPoint _localEndPoint;
         private static UdpClient _udpClient;
 
-        private static MessageQueue _incomingQueue = new MessageQueue();
-        private static MessageQueue _outgoingQueue = new MessageQueue();
+        public MessageQueue IncomingQueue { get; set; }
+        public MessageQueue OutgoingQueue { get; set; }
         private ReadWrite _readWrite = new ReadWrite();
-        private DataProcessor _processor = new DataProcessor();
 
-
-        private Thread _dataProcessor;
-        private Thread _sender;
-        
-        #endregion
-
-        #region Constructors and Destructors
 
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public Communicator()
-        {
+        private Communicator() {
             Initialize();
         }
 
-        /// <summary>
-        /// Primary Constructor
-        /// </summary>
-        /// <param name="localPort">If non-zero, the communicator will attempt to use this port</param>
-        public Communicator(int localPort)
+        public static Communicator Instance
         {
-            _localPort = localPort;
-            Initialize();
+            get
+            {
+                lock (MyLock)
+                {
+                    if (_instance == null)
+                        _instance = new Communicator();
+                }
+                return _instance;
+            }
         }
+        
+        #endregion
+
+        #region Constructors and Destructors
 
         public void Initialize()
         {
@@ -69,16 +71,7 @@ namespace FFPPServer
 
                 Log.Debug("Done initializing communicator");
             }
-            _processor._incomingMessages = _incomingQueue;
-            _processor._outgoingMessages = _outgoingQueue;
-
-            _dataProcessor = new Thread(new ThreadStart(_processor.Process));
-            _dataProcessor.Start();
-
-            _sender = new Thread(new ThreadStart(Send));
-            _sender.Start();
-
-            Listen(1000);
+           
         }
 
         #endregion
@@ -115,7 +108,7 @@ namespace FFPPServer
             return result;
         }
 
-        public void Listen(int timeout)
+        public void Listen()
         {
             Log.Debug("Listening for messages");
 
@@ -155,7 +148,7 @@ namespace FFPPServer
         public void Process(byte[] receivedBytes)
         {
             _readWrite.DecodeMessage(receivedBytes);
-            Enqueue(_incomingQueue, _readWrite.targetMessage);
+            Enqueue(IncomingQueue, _readWrite.targetMessage);
         }
 
         /*public bool Send(Message msg, IPEndPoint targetEndPoint)
@@ -168,14 +161,14 @@ namespace FFPPServer
         {
             while(keepSending)
             {
-                Message _msg = Dequeue(_outgoingQueue);
+                Message _msg = Dequeue(OutgoingQueue);
                 if(_msg != null )
                 {
                     Log.Debug("Entering Send");
 
                     bool result = false;
 
-                    if (_msg.fromAddress != null) //adjust this for end point
+                   /* if (_msg.fromAddress != null) //adjust this for end point
                     {
                         try
                         {
@@ -190,7 +183,7 @@ namespace FFPPServer
                         {
                             Log.Error("Unexpected exception while sending datagram - ", err);
                         }
-                    }
+                    }*/
 
                     Log.Debug("Leaving Send, result = " + result);
                 } else

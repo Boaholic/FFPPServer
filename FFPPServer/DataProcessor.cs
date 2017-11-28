@@ -11,18 +11,35 @@ namespace FFPPServer
 {
     class DataProcessor
     {
+        private static DataProcessor _instance;
+        private static readonly object MyLock = new object();
+
         private static readonly ILog Log = LogManager.GetLogger(typeof(DataProcessor));
 
-        public MessageQueue _incomingMessages { get; set; }
-        public  MessageQueue _outgoingMessages { get; set; }
+        public List<Conversation> RunningConversations { get; set; }
         private bool keepProcessing = false;
+
+        private DataProcessor() { }
+
+        public static DataProcessor Instance
+        {
+            get
+            {
+                lock (MyLock)
+                {
+                    if (_instance == null)
+                        _instance = new DataProcessor();
+                }
+                return _instance;
+            }
+        }
 
         public void Enqueue(Message m)
         {
             if (m != null)
             {
                 Log.Debug("Enqueue message = " + m);
-                _outgoingMessages.Enqueue(m);
+                Communicator.Instance.OutgoingQueue.Enqueue(m);
             }
         }
 
@@ -30,8 +47,8 @@ namespace FFPPServer
         {
             Message result = null;
 
-            if (_incomingMessages.Count > 0)
-                result = _incomingMessages.Dequeue();
+            if (Communicator.Instance.IncomingQueue.Count > 0)
+                result = Communicator.Instance.IncomingQueue.Dequeue();
 
             if (result != null)
                 Log.Debug("Dequeue message = " + result);
@@ -41,36 +58,30 @@ namespace FFPPServer
         public void Start()
         {
             keepProcessing = true;
+            Process();
         }
 
         public void Process()
         {
+            if(RunningConversations == null)
+            {
+                RunningConversations = new List<Conversation>();
+            }
             while (keepProcessing)
             {
                 Message _targetMessage = Dequeue();
                 if (_targetMessage != null)
                 {
-                    Message _response = null;
-                    switch (_targetMessage.thisMessageType)
+                    Conversation conversation = RunningConversations.Find(x => x.ConversationID == _targetMessage.ConversationID);
+                    if(conversation == null)
                     {
-                        case MessageType.JOIN:
-                            {
-                                // run add player command
-                                _response = new Message(MessageType.ACK, "Adding to game");
-                                Enqueue(_response);
-                                break;
-                            }
-                        case MessageType.HB:
-                            {
-
-                                break;
-                            }
-                        case MessageType.CHAT:
-                            {
-                                //update chat form
-                                break;
-                            }
+                        Conversation _newConversation = ConversationFactory.Instance.CreateConversation(_targetMessage);
+                        RunningConversations.Add(_newConversation);
+                    } else
+                    {
+                        //update conversation
                     }
+                    
 
                 } else
                 {
@@ -80,6 +91,5 @@ namespace FFPPServer
                     
         }
 
-        //process data here
     }
 }

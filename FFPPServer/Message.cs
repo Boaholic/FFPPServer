@@ -13,13 +13,20 @@ namespace FFPPServer
                 typeof(Message)
 
             );
-  
+        [DataMember(Name = "MessageID")]
+        public int MessageID;
+        [DataMember(Name = "ConversationID")]
+        public int ConversationID;
         [DataMember(Name = "thisMessageType")]
         public MessageType thisMessageType;
         [DataMember(Name = "messageBody")]
         public String messageBody;
-        [DataMember(Name = "fromAddress")]
-        public IPEndPoint fromAddress;
+
+        public Message()
+        {
+            log.Info("New Message Created: " + messageBody);
+        }
+
         public Message(MessageType inputMsgType, String inputMessageBody)
         {
             thisMessageType = inputMsgType;
