@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System.Net;
 using System.Net.Sockets;
+using FFPPCommunication;
 
 namespace FFPPServer
 {
