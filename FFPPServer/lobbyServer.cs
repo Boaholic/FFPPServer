@@ -11,6 +11,7 @@ namespace FFPPServer
     {
         public Player[] totalAssociatedPlayers = new Player[2];
         public LobbyGame[] gamesInLobby = new LobbyGame[2];
+        public Communicator communicator = new Communicator();
         public void newLobbyPlayer(Player newPlayer)
         {
             foreach (Player p in totalAssociatedPlayers)
