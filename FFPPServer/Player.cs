@@ -2,30 +2,66 @@
 using System.Net;
 using System.Net.Sockets;
 using FFPPCommunication;
+using System;
 
 namespace FFPPServer
 {
     public class Player
-    {
-        public string playerName { get; set; }
-        public static readonly ILog Logger = LogManager.GetLogger(typeof(Message));
-        public string A_Number { get; set; }
-        public IPAddress _ServerAddress { get; set; }
-        public UdpClient MyUdpClient { get; set; }
+    { 
+        // Player's name.
+        public string Name { get; set; }
+        public Guid PlayerID { get; set; }
+        public bool IsReady { get; set; }
+        // Locations of the players' ships.
+        public int[,] ShipSet { get; set; }
+        // [true] revieled / [false] unrevieled.
+        public bool[,] RevealedCells { get; set; }
+        // Last revieled cells.
+        public int[] LastRevieledCells { get; set; }
+        // Ships cells left.
+        public int[] ShipLeftCells { get; set; }
 
-        public IPEndPoint myEndPoint;
-        public IPEndPoint _ServerEndPoint;
-        public static System.Timers.Timer Controller;
-        public int Port { get; set; }
-        // System.Timers.TImer, db heartbeat, in score , s answer 
+        // Hits count.
+        public int Hits { get; set; }
+        // Misses count.
+        public int Misses { get; set; }
+        // Hit ratio.
+        public double HitRatio { get; set; }
+        // Unrevealed cells count.
+        public int UnrevealedCells { get; set; }
+        // Ships cells count.
+        public int ShipCells { get; set; }
+        // Ships left count.
+        public int ShipsLeft { get; set; }
 
-        public int Score { get; set; }
+        // Battle log content.
+        public string BattleLog { get; set; }
 
-        public Player(Message initialClientMessage)
+        public Player()
         {
-            //extract the player name
-            //set the value of variable playerName
-            //to the input value
+            ShipLeftCells = new int[] { 2, 3, 3, 4, 5 };
+            Hits = 0;
+            Misses = 0;
+            HitRatio = 0;
+            UnrevealedCells = 100;
+            ShipCells = 17;
+            ShipsLeft = 5;
+            BattleLog = "";
+            ShipSet = new int[10, 10];
+            RevealedCells = new bool[10, 10];
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    ShipSet[i, j] = -1;
+                    RevealedCells[i, j] = false;
+                }
+            }
+
+            LastRevieledCells = new int[2];
+            LastRevieledCells[0] = -1;
+            LastRevieledCells[1] = -1;
         }
         public bool hasJoinedGame
         {
