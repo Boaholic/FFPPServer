@@ -48,10 +48,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>D1BE237E6DED0CF13BC95CCD688AB7BCFFF355D5</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>930298FB92A33387C221ABF9B94E4811C92C9564</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>FFPPServer_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>FFPPServer_2_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -62,14 +62,16 @@
   <ItemGroup>
     <Reference Include="FFPPCommunication, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\FFPPCommunication.dll</HintPath>
+      <HintPath>..\FFPPCommunication.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -78,14 +80,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataProccessor.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="LobbyGame.cs" />
+    <Compile Include="GameServer.cs" />
     <Compile Include="LobbyServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="FFPPServer_2_TemporaryKey.pfx" />
     <None Include="FFPPServer_TemporaryKey.pfx" />
     <None Include="packages.config" />
   </ItemGroup>
