@@ -21,6 +21,7 @@ namespace FFPPServer
         public bool isFull;
 
         public Guid GameID { get; set; }
+        public string GameHandle { get; set; }
 
         // Difficulty of the game, 1 for low, 10 for high
         public int Difficulty = 8;
@@ -45,6 +46,14 @@ namespace FFPPServer
         public GameServer()
         {
             GameID = Guid.NewGuid();
+            isActive = false;
+            isOpen = true;
+        }
+
+        public GameServer(string GameHandle)
+        {
+            GameID = Guid.NewGuid();
+            this.GameHandle = GameHandle;
             isActive = false;
             isOpen = true;
         }

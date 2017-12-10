@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using FFPPCommunication;
 using System;
+using System.Collections.Generic;
 
 namespace FFPPServer
 {
@@ -11,6 +12,8 @@ namespace FFPPServer
         // Player's name.
         public string Name { get; set; }
         public Guid PlayerID { get; set; }
+        public List<GameServer> JoinedGames { get; set; }
+        public IPEndPoint ClientAddress { get; set; }
         public bool IsReady { get; set; }
         // Locations of the players' ships.
         public int[,] ShipSet { get; set; }
@@ -62,6 +65,8 @@ namespace FFPPServer
             LastRevieledCells = new int[2];
             LastRevieledCells[0] = -1;
             LastRevieledCells[1] = -1;
+
+            JoinedGames = new List<GameServer>();
         }
         public bool hasJoinedGame
         {

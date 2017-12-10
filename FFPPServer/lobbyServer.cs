@@ -13,17 +13,37 @@ namespace FFPPServer
         public List<GameServer> GamesInLobby { get; set; }
         public Communicator Communicator { get; set; }
 
+        string LobbyLog { get; set; }
+
         public LobbyServer()
         {
             TotalAssociatedPlayers = new List<Player>();
             GamesInLobby = new List<GameServer>();
             Communicator = new Communicator();
+            LobbyLog = "LOBBYLOG|";
 
             //Create two new instances of lobbygame
-            GameServer firstGame = new GameServer();
-            GameServer secondGame = new GameServer();
+            GameServer firstGame = new GameServer
+            {
+                GameHandle = "Lobby Generated Game 1"
+            };
+            GameServer secondGame = new GameServer
+            {
+                GameHandle = "Lobby Generated Game 2"
+            };
             GamesInLobby.Add(firstGame);
             GamesInLobby.Add(secondGame);
+        }
+
+        public void BroadcastLog()
+        {
+
+            Message logMessage = new Message(Message.messageType.CHAT, LobbyLog);
+            foreach(Player player in TotalAssociatedPlayers)
+            {
+
+                Communicator.Send(logMessage, player.ClientAddress);
+            }
         }
         public bool NewLobbyPlayer(Player newPlayer)
         {
@@ -33,27 +53,33 @@ namespace FFPPServer
             }
             else
             {
-                foreach (Player p in TotalAssociatedPlayers)
+                Player ExsistingPlayer = TotalAssociatedPlayers.Find(player => player.Name == newPlayer.Name);
+                if(ExsistingPlayer != null)
                 {
-                    if (newPlayer == p)
-                    {
-                        return false; //The player already exists
-                    }
+                    return false;
                 }
-                TotalAssociatedPlayers.Add(newPlayer);  
+                TotalAssociatedPlayers.Add(newPlayer);
+                LobbyLog = $"LOBBYLOG|New Player {newPlayer.Name} has entered Lobby";
             }
             return true;
         }
 
-        public bool AddPlayerToGame(Player newPlayer, Guid GameIndex)
+        public bool AddPlayerToGame(Player newPlayer, GameServer SelectedGame)
         {
-            GameServer SelectedGame = GamesInLobby.Find(game => game.GameID == GameIndex);
+           
             if(SelectedGame.isFull)
             {
                 return false;
             }
             else
             {
+                Player ExsistingPlayer = SelectedGame.JoinedPlayers.Find(player => player.Name == newPlayer.Name);
+                if (ExsistingPlayer != null)
+                {
+                    return false;
+                }
+                LobbyLog = $"LOBBYLOG|Player {newPlayer.Name} joined Game {SelectedGame.GameHandle}";
+
                 SelectedGame.JoinedPlayers.Add(newPlayer);
                 if(SelectedGame.JoinedPlayers.Count == 2)
                 {
@@ -64,11 +90,21 @@ namespace FFPPServer
             return true;
         }
 
-        public bool RemovePlayerFromGame(Player newPlayer, Guid GameIndex)
+        public bool RemovePlayerFromGame(Player newPlayer, GameServer SelectedGame)
         {
-            GameServer SelectedGame = GamesInLobby.Find(game => game.GameID == GameIndex);
             SelectedGame.JoinedPlayers.Remove(newPlayer);
             SelectedGame.isFull = false;
+
+            LobbyLog = $"LOBBYLOG|Player {newPlayer.Name} left Game {SelectedGame.GameHandle}";
+            return true;
+        }
+
+        public bool PlayerCreateGame(Player player, GameServer NewGame)
+        {
+            NewGame.JoinedPlayers.Add(player);
+            GamesInLobby.Add(NewGame);
+
+            LobbyLog = $"LOBBYLOG|Player {player.Name} created and joined Game {NewGame.GameHandle}";
             return true;
         }
 
