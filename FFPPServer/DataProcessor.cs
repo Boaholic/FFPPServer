@@ -6,7 +6,8 @@ using System.Threading;
 
 using log4net;
 
-
+//Create conversation and put conversation on outgoing queue
+//dictionary mapping of conversation ID to conversation
 namespace FFPPServer
 {
     class DataProcessor

@@ -13,7 +13,7 @@ namespace FFPPServer
                 typeof(Message)
 
             );
-  
+        //Conversation and Message ID or GWID and sequence number
         [DataMember(Name = "thisMessageType")]
         public MessageType thisMessageType;
         [DataMember(Name = "messageBody")]

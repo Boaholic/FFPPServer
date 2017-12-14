@@ -12,6 +12,7 @@ namespace FFPPServer
         //https://www.codeproject.com/Articles/140911/log-net-Tutorial
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(Message));
         public Message targetMessage { get; set; }
+        //Return decoded message?
         public void DecodeMessage(byte[] encodedMessage)
         {
             MemoryStream rawData = new MemoryStream(encodedMessage);
@@ -36,7 +37,7 @@ namespace FFPPServer
             return Encoding.UTF8.GetBytes(messageJSON);
 
         }
-
+        //target message property may have threading issues.
         public byte[] EncodeMessage(Message inputMessage)
         {
             targetMessage = inputMessage;
